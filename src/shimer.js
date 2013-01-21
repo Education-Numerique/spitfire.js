@@ -489,6 +489,7 @@
   // This can't be shimed independtly considering we work synchronously for now with loader
   // AND XXX BEWARE - this means that setTimeout can't be used in following code
   // BEFORE this specific setTimeout runs out
+  // And this shit is breaking all hell loose... FUCK MATHJAX GODAMNSHITTYPIECEOFCRAP
   setTimeout(function(a) {
     if (!a) {
       var deref = window.setTimeout;
@@ -499,9 +500,25 @@
         var cl = function() {
           callback.apply(this, a);
         };
-        deref(cl, delay);
+        return deref(cl, delay);
       };
     }
+  }, 1, true);
+
+  var intervalTest = setInterval(function(a) {
+    if (!a) {
+      var deref = window.setInterval;
+      window.setInterval = function(callback, delay) {
+        var a = Array.prototype.slice.call(arguments);
+        a.shift();
+        a.shift();
+        var cl = function() {
+          callback.apply(this, a);
+        };
+        return deref(cl, delay);
+      };
+    }
+    clearInterval(intervalTest);
   }, 1, true);
 
 }).apply(this);
